@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\BirdsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,4 +20,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('register',[UsersController::class, 'register']);
+Route::post('register', [UsersController::class, 'register']);
+Route::post('addbird', [BirdsController::class, 'addBird']);
+Route::get('getbird/{id}',[BirdsController::class,'getBird']);
+Route::get('getallbirds',[BirdsController::class,'getAllBirds']);
+Route::get('getbirdsbyuser/{user}',[BirdsController::class,'getBirdsByUser']);
