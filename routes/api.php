@@ -21,6 +21,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('register', [UsersController::class, 'register']);
+Route::post('login', [UsersController::class, 'login']);
+Route::get('getuserbyusername/{username}', [UsersController::class, 'getUserByUsername']);
 Route::post('addbird', [BirdsController::class, 'addBird']);
 Route::get('getbird/{id}',[BirdsController::class,'getBird']);
 Route::get('getallbirds',[BirdsController::class,'getAllBirds']);

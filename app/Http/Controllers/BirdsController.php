@@ -22,7 +22,7 @@ class BirdsController extends Controller
         $bird = new Birds;
         $bird->name = $req->input('name');
         $bird->sightingDate = $req->input('sightingDate');
-        $bird->	personalNotes= $req->input('personalNotes');
+        $bird->personalNotes= $req->input('personalNotes');
         $bird->xPosition = $req->input('xPosition');
         $bird->yPosition = $req->input('yPosition');
         if($req->file('photo') == null){
