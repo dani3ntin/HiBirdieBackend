@@ -67,7 +67,23 @@ class BirdsController extends Controller
                 'yPosition'=> $bird->yPosition,
                 'user'=> $bird->user,
                 'deleted'=> $bird->deleted,
+                'likes' => $bird->likes,
             ]),
         ]);
+    }
+
+    function addLikeById($id){
+        $nLikes = Birds::select("likes")->where("id", $id)->get()[0];
+        Birds::where("id", $id)->update([
+            'likes' => $nLikes->likes + 1
+        ]);
+        return $nLikes->likes + 1;
+    }
+    function deleteLikeById($id){
+        $nLikes = Birds::select("likes")->where("id", $id)->get()[0];
+        Birds::where("id", $id)->update([
+            'likes' => $nLikes->likes - 1
+        ]);
+        return $nLikes->likes - 1;
     }
 }

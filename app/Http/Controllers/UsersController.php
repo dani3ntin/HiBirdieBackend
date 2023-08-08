@@ -20,7 +20,6 @@ class UsersController extends Controller
         //$users->password = Hash::make($req->input('password'));
         $user->profilePic = $req->file('photo')->store("personPic/");
         $users->state = $req->input('state');
-        $users->likes = $req->input('likes');
         $users->save();
         return $users;
     }
@@ -54,6 +53,9 @@ class UsersController extends Controller
         $mimeType = Storage::mimeType($path);
 
         $latestSightByThisUser = Birds::select("sightingDate")->where("user", $user->username)->orderBy("sightingDate", "desc")->first();
+        if($latestSightByThisUser){
+            $latestSightByThisUser = $latestSightByThisUser->sightingDate;
+        }
 
         return new Response($image, 200, [
             'Content-Type' => $mimeType,
@@ -63,8 +65,7 @@ class UsersController extends Controller
                 'name' => $user->name, 
                 'email'=> $user->email,
                 'state'=> $user->state,
-                'likes'=> $user->likes,
-                'latestSight' => $latestSightByThisUser->sightingDate,
+                'latestSight' => $latestSightByThisUser,
             ]),
         ]);
     }
