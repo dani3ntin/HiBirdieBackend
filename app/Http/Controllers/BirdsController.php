@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 use App\Models\Birds;
+use App\Models\Likes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Response;
+use App\Http\Controllers\LikesController;
 
 class BirdsController extends Controller
 {
@@ -36,16 +38,48 @@ class BirdsController extends Controller
         return $bird;
     }
 
-    function getAllBirds(){
-        return Birds::select("*")->get();
+    function getAllBirds($requestingUser) {
+        return Birds::leftJoin('likes', 'birds.id', '=', 'likes.bird')
+            ->select(
+                'birds.id', 'birds.sightingDate', 'birds.personalNotes', 'birds.xPosition', 'birds.yPosition', 'birds.photoPath', 'birds.user', 'birds.deleted', 'birds.name', 
+                DB::raw('COUNT(likes.bird) AS likes'),
+                DB::raw('MAX(CASE WHEN likes.user = ? THEN 1 ELSE 0 END) AS userPutLike')
+            )
+            ->groupBy(
+                'birds.id', 'birds.sightingDate', 'birds.personalNotes', 'birds.xPosition', 'birds.yPosition', 'birds.photoPath', 'birds.user', 'birds.deleted', 'birds.name'
+            )
+            ->setBindings([$requestingUser])
+            ->get();
+    }
+    
+    
+    
+    function getBirdsByUser($user, $requestingUser) {
+        return Birds::leftJoin('likes', 'birds.id', '=', 'likes.bird')
+            ->select(
+                'birds.id', 'birds.sightingDate', 'birds.personalNotes', 'birds.xPosition', 'birds.yPosition', 'birds.photoPath', 'birds.user', 'birds.deleted', 'birds.name', 
+                DB::raw('COUNT(likes.bird) AS likes'),
+                DB::raw('MAX(CASE WHEN likes.user = ? THEN 1 ELSE 0 END) AS userPutLike')
+            )
+            ->where('birds.user', '=', $user) // Aggiunta della clausola WHERE
+            ->groupBy(
+                'birds.id', 'birds.sightingDate', 'birds.personalNotes', 'birds.xPosition', 'birds.yPosition', 'birds.photoPath', 'birds.user', 'birds.deleted', 'birds.name'
+            )
+            ->setBindings([$requestingUser, $user])
+            ->get();
     }
 
-    function getBirdsByUser($user){
-        return Birds::select("*")->where("user", $user)->get();
-    }
-
-    function getBird($id){
+    function getBird($id, $requestingUser){
         $bird = Birds::select("*")->where("id", $id)->get()[0];
+        $likes = count(Likes::select("*")->where("bird", $id)->get());
+
+        $request = new Request([
+            'user' => $requestingUser,
+            'bird' => $id,
+        ]);
+
+        $likesController = new LikesController;
+        $userPutLike = $likesController->userPutLike($request);
         $path = $bird->photoPath;
 
         if (!Storage::exists($path)) {
@@ -67,23 +101,9 @@ class BirdsController extends Controller
                 'yPosition'=> $bird->yPosition,
                 'user'=> $bird->user,
                 'deleted'=> $bird->deleted,
-                'likes' => $bird->likes,
+                'likes' => $likes,
+                'userPutLike' => $userPutLike
             ]),
         ]);
-    }
-
-    function addLikeById($id){
-        $nLikes = Birds::select("likes")->where("id", $id)->get()[0];
-        Birds::where("id", $id)->update([
-            'likes' => $nLikes->likes + 1
-        ]);
-        return $nLikes->likes + 1;
-    }
-    function deleteLikeById($id){
-        $nLikes = Birds::select("likes")->where("id", $id)->get()[0];
-        Birds::where("id", $id)->update([
-            'likes' => $nLikes->likes - 1
-        ]);
-        return $nLikes->likes - 1;
     }
 }
