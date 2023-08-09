@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\BirdsController;
+use App\Http\Controllers\LikesController;
 use App\Http\Controllers\FollowersController;
 
 /*
@@ -25,10 +26,11 @@ Route::post('register', [UsersController::class, 'register']);
 Route::post('login', [UsersController::class, 'login']);
 Route::get('getuserbyusername/{username}', [UsersController::class, 'getUserByUsername']);
 Route::post('addbird', [BirdsController::class, 'addBird']);
-Route::get('getbird/{id}',[BirdsController::class,'getBird']);
-Route::get('getallbirds',[BirdsController::class,'getAllBirds']);
-Route::get('getbirdsbyuser/{user}',[BirdsController::class,'getBirdsByUser']);
-Route::get('addlikebyid/{id}',[BirdsController::class,'addLikeById']);
-Route::get('deletelikebyid/{id}',[BirdsController::class,'deleteLikeById']);
+Route::get('getbird/{id}/{requestingUser}',[BirdsController::class,'getBird']);
+Route::get('getallbirds/{requestingUser}',[BirdsController::class,'getAllBirds']);
+Route::get('getbirdsbyuser/{user}/{requestingUser}',[BirdsController::class,'getBirdsByUser']);
+Route::post('addlike',[LikesController::class,'addLike']);
+Route::post('removelike',[LikesController::class,'removeLike']);
+Route::post('userputlike',[LikesController::class,'userPutLike']);
 Route::post('addfollower', [FollowersController::class, 'addFollower']);
 Route::get('getfollowersbyusername/{username}', [FollowersController::class, 'getFollowersByUsername']);
