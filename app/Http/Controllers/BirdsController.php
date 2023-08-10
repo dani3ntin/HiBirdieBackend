@@ -64,7 +64,7 @@ class BirdsController extends Controller
             $maximumDistance = 9999999;
         }
         $requestingUser = $req->input('requestingUser');
-        $maximumDays = Carbon::now()->subDays($maximumDays)->format('Y-d-m');
+        $maximumDays = Carbon::now()->subDays($maximumDays - 1)->format('Y-d-m');
         $latUser = $req->input('latUser');
         $lonUser = $req->input('lonUser');
         return DB::select("

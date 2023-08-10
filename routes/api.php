@@ -35,3 +35,4 @@ Route::post('removelike',[LikesController::class,'removeLike']);
 Route::post('userputlike',[LikesController::class,'userPutLike']);
 Route::post('addfollower', [FollowersController::class, 'addFollower']);
 Route::get('getfollowersbyusername/{username}', [FollowersController::class, 'getFollowersByUsername']);
+Route::get('getfollowedbyusername/{username}', [FollowersController::class, 'getFollowedByUsername']);
