@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Response;
 use App\Http\Controllers\LikesController;
+use Carbon\Carbon;
 
 class BirdsController extends Controller
 {
@@ -51,8 +52,38 @@ class BirdsController extends Controller
             ->setBindings([$requestingUser])
             ->get();
     }
-    
-    
+
+    // maximumDays, maximumDistance, requestingUser, latUser, longUser
+    function getBirdsWithFilter(Request $req) {
+        $maximumDays = $req->input('maximumDays');
+        $maximumDistance = $req->input('maximumDistance');
+        if($maximumDays == 0){
+            $maximumDays = 9999999;
+        }
+        if($maximumDistance == 0){
+            $maximumDistance = 9999999;
+        }
+        $requestingUser = $req->input('requestingUser');
+        $maximumDays = Carbon::now()->subDays($maximumDays)->format('Y-d-m');
+        $latUser = $req->input('latUser');
+        $lonUser = $req->input('lonUser');
+        return DB::select("
+            SELECT
+                b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name,
+                COUNT(l.bird) AS likes,
+                MAX(CASE WHEN l.user = '".$requestingUser."' THEN 1 ELSE 0 END) AS userPutLike,
+                6371 * ACOS(COS(RADIANS(".$latUser.")) * COS(RADIANS(b.xPosition)) * COS(RADIANS(".$lonUser.") - RADIANS(b.yPosition)) + SIN(RADIANS(".$latUser.")) * SIN(RADIANS(b.xPosition))) AS distance
+            FROM Birds AS b
+            LEFT JOIN likes AS l ON b.id = l.bird
+            GROUP BY
+                b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name
+            HAVING
+                distance < ".$maximumDistance." AND b.sightingDate >= '".$maximumDays."'
+            ORDER BY
+                b.sightingDate DESC;
+        ");
+    }
+
     
     function getBirdsByUser($user, $requestingUser) {
         return Birds::leftJoin('likes', 'birds.id', '=', 'likes.bird')
@@ -61,7 +92,7 @@ class BirdsController extends Controller
                 DB::raw('COUNT(likes.bird) AS likes'),
                 DB::raw('MAX(CASE WHEN likes.user = ? THEN 1 ELSE 0 END) AS userPutLike')
             )
-            ->where('birds.user', '=', $user) // Aggiunta della clausola WHERE
+            ->where('birds.user', '=', $user)
             ->groupBy(
                 'birds.id', 'birds.sightingDate', 'birds.personalNotes', 'birds.xPosition', 'birds.yPosition', 'birds.photoPath', 'birds.user', 'birds.deleted', 'birds.name'
             )
