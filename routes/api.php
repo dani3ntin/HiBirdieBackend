@@ -30,6 +30,8 @@ Route::get('getbird/{id}/{requestingUser}',[BirdsController::class,'getBird']);
 Route::get('getallbirds/{requestingUser}',[BirdsController::class,'getAllBirds']);
 Route::get('getbirdsbyuser/{user}/{requestingUser}',[BirdsController::class,'getBirdsByUser']);
 Route::post('getbirdswithfilter',[BirdsController::class,'getBirdsWithFilter']);
+Route::post('getbirdsbyusernamewithdistance',[BirdsController::class,'getBirdsByUsernameWithDistance']);
+Route::get('deletebird/{id}',[BirdsController::class,'deleteBird']);
 Route::post('addlike',[LikesController::class,'addLike']);
 Route::post('removelike',[LikesController::class,'removeLike']);
 Route::post('userputlike',[LikesController::class,'userPutLike']);

@@ -46,10 +46,11 @@ class BirdsController extends Controller
                 DB::raw('COUNT(likes.bird) AS likes'),
                 DB::raw('MAX(CASE WHEN likes.user = ? THEN 1 ELSE 0 END) AS userPutLike')
             )
+            ->where("birds.deleted", "=", "0")
             ->groupBy(
                 'birds.id', 'birds.sightingDate', 'birds.personalNotes', 'birds.xPosition', 'birds.yPosition', 'birds.photoPath', 'birds.user', 'birds.deleted', 'birds.name'
             )
-            ->setBindings([$requestingUser])
+            ->setBindings([$requestingUser, $requestingUser])
             ->get();
     }
 
@@ -78,7 +79,28 @@ class BirdsController extends Controller
             GROUP BY
                 b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name
             HAVING
-                distance < ".$maximumDistance." AND b.sightingDate >= '".$maximumDays."'
+                distance < ".$maximumDistance." AND b.sightingDate >= '".$maximumDays."' AND b.deleted = 0
+            ORDER BY
+                b.sightingDate DESC;
+        ");
+    }
+
+    function getBirdsByUsernameWithDistance(Request $req) {
+        $requestingUser = $req->input('requestingUser');
+        $authorUsername = $req->input('authorUsername');
+        $latUser = $req->input('latUser');
+        $lonUser = $req->input('lonUser');
+        return DB::select("
+            SELECT
+                b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name,
+                COUNT(l.bird) AS likes,
+                MAX(CASE WHEN l.user = '".$requestingUser."' THEN 1 ELSE 0 END) AS userPutLike,
+                6371 * ACOS(COS(RADIANS(".$latUser.")) * COS(RADIANS(b.xPosition)) * COS(RADIANS(".$lonUser.") - RADIANS(b.yPosition)) + SIN(RADIANS(".$latUser.")) * SIN(RADIANS(b.xPosition))) AS distance
+            FROM Birds AS b
+            LEFT JOIN likes AS l ON b.id = l.bird
+            WHERE b.user = '".$authorUsername."'
+            GROUP BY
+                b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name
             ORDER BY
                 b.sightingDate DESC;
         ");
@@ -93,15 +115,16 @@ class BirdsController extends Controller
                 DB::raw('MAX(CASE WHEN likes.user = ? THEN 1 ELSE 0 END) AS userPutLike')
             )
             ->where('birds.user', '=', $user)
+            ->where("birds.deleted", "=", "0")
             ->groupBy(
                 'birds.id', 'birds.sightingDate', 'birds.personalNotes', 'birds.xPosition', 'birds.yPosition', 'birds.photoPath', 'birds.user', 'birds.deleted', 'birds.name'
             )
-            ->setBindings([$requestingUser, $user])
+            ->setBindings([$requestingUser, $user, $user])
             ->get();
     }
 
     function getBird($id, $requestingUser){
-        $bird = Birds::select("*")->where("id", $id)->get()[0];
+        $bird = Birds::select("*")->where("id", $id)->where("deleted", "=", "0")->get()[0];
         $likes = count(Likes::select("*")->where("bird", $id)->get());
 
         $request = new Request([
@@ -135,6 +158,12 @@ class BirdsController extends Controller
                 'likes' => $likes,
                 'userPutLike' => $userPutLike
             ]),
+        ]);
+    }
+
+    function deleteBird($id){
+        Birds::where('id', $id)->update([
+            'deleted' => '1',
         ]);
     }
 }
