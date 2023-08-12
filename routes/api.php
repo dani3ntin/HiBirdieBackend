@@ -28,8 +28,10 @@ Route::get('getuserbyusername/{username}', [UsersController::class, 'getUserByUs
 Route::post('addbird', [BirdsController::class, 'addBird']);
 Route::get('getbird/{id}/{requestingUser}',[BirdsController::class,'getBird']);
 Route::get('getallbirds/{requestingUser}',[BirdsController::class,'getAllBirds']);
+Route::get('getallbirdsexceptyours/{requestingUser}',[BirdsController::class,'getAllBirdsExceptYours']);
 Route::get('getbirdsbyuser/{user}/{requestingUser}',[BirdsController::class,'getBirdsByUser']);
 Route::post('getbirdswithfilter',[BirdsController::class,'getBirdsWithFilter']);
+Route::post('getbirdswithfilterexceptyours',[BirdsController::class,'getBirdsWithFilterExceptYours']);
 Route::post('getbirdsbyusernamewithdistance',[BirdsController::class,'getBirdsByUsernameWithDistance']);
 Route::get('deletebird/{id}',[BirdsController::class,'deleteBird']);
 Route::post('addlike',[LikesController::class,'addLike']);

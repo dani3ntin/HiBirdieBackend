@@ -67,6 +67,8 @@ class UsersController extends Controller
                 'email'=> $user->email,
                 'state'=> $user->state,
                 'latestSight' => $latestSightByThisUser,
+                'likes'=> $user->likes,
+                'followers'=> $user->followers,
             ]),
         ]);
     }

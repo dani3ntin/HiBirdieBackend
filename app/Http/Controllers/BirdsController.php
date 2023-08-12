@@ -54,6 +54,22 @@ class BirdsController extends Controller
             ->get();
     }
 
+    function getAllBirdsExceptYours($requestingUser) {
+        return Birds::leftJoin('likes', 'birds.id', '=', 'likes.bird')
+            ->select(
+                'birds.id', 'birds.sightingDate', 'birds.personalNotes', 'birds.xPosition', 'birds.yPosition', 'birds.photoPath', 'birds.user', 'birds.deleted', 'birds.name', 
+                DB::raw('COUNT(likes.bird) AS likes'),
+                DB::raw('MAX(CASE WHEN likes.user = ? THEN 1 ELSE 0 END) AS userPutLike')
+            )
+            ->where("birds.deleted", "=", "0")
+            ->where("birds.user", "<>", $requestingUser)
+            ->groupBy(
+                'birds.id', 'birds.sightingDate', 'birds.personalNotes', 'birds.xPosition', 'birds.yPosition', 'birds.photoPath', 'birds.user', 'birds.deleted', 'birds.name'
+            )
+            ->setBindings([$requestingUser, $requestingUser, $requestingUser])
+            ->get();
+    }
+
     // maximumDays, maximumDistance, requestingUser, latUser, longUser
     function getBirdsWithFilter(Request $req) {
         $maximumDays = $req->input('maximumDays');
@@ -80,6 +96,36 @@ class BirdsController extends Controller
                 b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name
             HAVING
                 distance < ".$maximumDistance." AND b.sightingDate >= '".$maximumDays."' AND b.deleted = 0
+            ORDER BY
+                b.sightingDate DESC;
+        ");
+    }
+
+    function getBirdsWithFilterExceptYours(Request $req) {
+        $maximumDays = $req->input('maximumDays');
+        $maximumDistance = $req->input('maximumDistance');
+        if($maximumDays == 0){
+            $maximumDays = 9999999;
+        }
+        if($maximumDistance == 0){
+            $maximumDistance = 9999999;
+        }
+        $requestingUser = $req->input('requestingUser');
+        $maximumDays = Carbon::now()->subDays($maximumDays - 1)->format('Y-d-m');
+        $latUser = $req->input('latUser');
+        $lonUser = $req->input('lonUser');
+        return DB::select("
+            SELECT
+                b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name,
+                COUNT(l.bird) AS likes,
+                MAX(CASE WHEN l.user = '".$requestingUser."' THEN 1 ELSE 0 END) AS userPutLike,
+                6371 * ACOS(COS(RADIANS(".$latUser.")) * COS(RADIANS(b.xPosition)) * COS(RADIANS(".$lonUser.") - RADIANS(b.yPosition)) + SIN(RADIANS(".$latUser.")) * SIN(RADIANS(b.xPosition))) AS distance
+            FROM Birds AS b
+            LEFT JOIN likes AS l ON b.id = l.bird
+            GROUP BY
+                b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name
+            HAVING
+                distance < ".$maximumDistance." AND b.sightingDate >= '".$maximumDays."' AND b.deleted = 0 AND b.user <> '".$requestingUser."'
             ORDER BY
                 b.sightingDate DESC;
         ");
