@@ -9,6 +9,9 @@ use App\Models\Followers;
 class FollowersController extends Controller
 {
     function addFollower(Request $req){
+        $alreadyFollowing = Followers::where('usernameFollower', $req->input('usernameFollower'))->where('usernameFollowed', $req->input('usernameFollowed'))->exists();
+        if($alreadyFollowing)
+            return "Already following";
         $follower = new Followers;
         $follower->usernameFollower = $req->input('usernameFollower');
         $follower->usernameFollowed = $req->input('usernameFollowed');
@@ -28,7 +31,7 @@ class FollowersController extends Controller
     }
 
     function removeFollower(Request $req){
-        $followers = Followers::where("usernameFollower", $req->input('usernameFollower'))->where("usernameFollowed", $req->input('usernameFollowed'))->delete();
+        $follower = Followers::where("usernameFollower", $req->input('usernameFollower'))->where("usernameFollowed", $req->input('usernameFollowed'))->delete();
 
         $oldFollowers = Users::select("followers")->where("username", $req->input('usernameFollowed'))->first();
 
@@ -55,5 +58,9 @@ class FollowersController extends Controller
         ->select('*')
         ->where('followers.usernameFollower', '=', $username)
         ->get();
+    }
+
+    function isUsernameFollowing($follower, $followed){
+        return Followers::where('usernameFollower', $follower)->where('usernameFollowed', $followed)->exists();
     }
 }

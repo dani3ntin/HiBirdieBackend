@@ -9,6 +9,7 @@ use App\Models\Followers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Response;
+use App\Http\Controllers\FollowersController;
 
 class UsersController extends Controller
 {
@@ -42,8 +43,8 @@ class UsersController extends Controller
         return $userFoundWithEmail;
     }
 
-    function getUserByUsername($username){
-        $user = Users::select("*")->where("username", $username)->get()[0];
+    function getUserByUsername($loggedUsername, $requestedUsername){
+        $user = Users::select("*")->where("username", $requestedUsername)->get()[0];
         $path = $user->profilePic;
 
         if (!Storage::exists($path)) {
@@ -58,17 +59,21 @@ class UsersController extends Controller
             $latestSightByThisUser = $latestSightByThisUser->sightingDate;
         }
 
+        $followersController = new FollowersController;
+        $isUsernameFollowing = $followersController->isUsernameFollowing($loggedUsername, $requestedUsername);
+
         return new Response($image, 200, [
             'Content-Type' => $mimeType,
             'Content-Disposition' => 'inline',
             'imageInfos' => json_encode([
                 'username' => $user->username,
                 'name' => $user->name, 
-                'email'=> $user->email,
-                'state'=> $user->state,
+                'email' => $user->email,
+                'state' => $user->state,
                 'latestSight' => $latestSightByThisUser,
-                'likes'=> $user->likes,
-                'followers'=> $user->followers,
+                'likes' => $user->likes,
+                'followers' => $user->followers,
+                'isLoggedUserFollowing' => $isUsernameFollowing,
             ]),
         ]);
     }

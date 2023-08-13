@@ -24,7 +24,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('register', [UsersController::class, 'register']);
 Route::post('login', [UsersController::class, 'login']);
-Route::get('getuserbyusername/{username}', [UsersController::class, 'getUserByUsername']);
+Route::get('getuserbyusername/{loggedUsername}/{requestedUsername}', [UsersController::class, 'getUserByUsername']);
 Route::post('addbird', [BirdsController::class, 'addBird']);
 Route::get('getbird/{id}/{requestingUser}',[BirdsController::class,'getBird']);
 Route::get('getallbirds/{requestingUser}',[BirdsController::class,'getAllBirds']);
@@ -38,5 +38,7 @@ Route::post('addlike',[LikesController::class,'addLike']);
 Route::post('removelike',[LikesController::class,'removeLike']);
 Route::post('userputlike',[LikesController::class,'userPutLike']);
 Route::post('addfollower', [FollowersController::class, 'addFollower']);
+Route::post('removefollower', [FollowersController::class, 'removeFollower']);
 Route::get('getfollowersbyusername/{username}', [FollowersController::class, 'getFollowersByUsername']);
 Route::get('getfollowedbyusername/{username}', [FollowersController::class, 'getFollowedByUsername']);
+Route::get('isusernamefollowing/{follower}/{followed}', [FollowersController::class, 'isUsernameFollowing']);

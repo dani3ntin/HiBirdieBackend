@@ -10,6 +10,10 @@ use App\Models\Birds;
 class LikesController extends Controller
 {
     function addLike(Request $req){
+        $likeAlreadyPresent = Likes::where('user', $req->input('user'))->where('bird', $req->input('bird'))->exists();
+        if($likeAlreadyPresent){
+            return "like already put by this user";
+        }
         $like = new Likes;
         $like->user = $req->input('user');
         $like->bird = $req->input('bird');
