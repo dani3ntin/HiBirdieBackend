@@ -44,14 +44,25 @@ class BirdsController extends Controller
     }
 
     function editBird(Request $req){ //la proprietà dell'immagine deve chiamarsi photo
-        Birds::where('id', $req->input('id'))->update([
-            'name' => $req->input('name'),
-            'sightingDate' => $req->input('sightingDate'),
-            'personalNotes' => $req->input('personalNotes'),
-            'xPosition' => $req->input('xPosition'),
-            'yPosition' => $req->input('yPosition'),
-            'photoPath' => $req->file('photo')->store("birds/"),
-        ]);
+        if($req->file('photo') == null){
+            Birds::where('id', $req->input('id'))->update([
+                'name' => $req->input('name'),
+                'sightingDate' => $req->input('sightingDate'),
+                'personalNotes' => $req->input('personalNotes'),
+                'xPosition' => $req->input('xPosition'),
+                'yPosition' => $req->input('yPosition'),
+            ]);
+        }
+        else{
+            Birds::where('id', $req->input('id'))->update([
+                'name' => $req->input('name'),
+                'sightingDate' => $req->input('sightingDate'),
+                'personalNotes' => $req->input('personalNotes'),
+                'xPosition' => $req->input('xPosition'),
+                'yPosition' => $req->input('yPosition'),
+                'photoPath' => $req->file('photo')->store("birds/"),
+            ]);
+        }
     }
 
     function getAllBirds($requestingUser) {
