@@ -13,11 +13,11 @@ use Carbon\Carbon;
 class BirdsController extends Controller
 {
     function findDefaultBirdPic($name){
-        if($name == "Crow") return 'defaultBirds/cornacchia.jpg';
-        if($name == "Sparrow") return 'defaultBirds/cornacchia.jpg';
-        if($name == "Robin") return 'defaultBirds/cornacchia.jpg';
-        if($name == "Pigeon") return 'defaultBirds/cornacchia.jpg';
-        if($name == "Dove") return 'defaultBirds/cornacchia.jpg';
+        if(stripos($name, "crow")) return 'defaultBirds/cornacchia.jpg';
+        if(stripos($name, "sparrow")) return 'defaultBirds/passero.jpg';
+        if(stripos($name, "robin")) return 'defaultBirds/pettirosso.jpg';
+        if(stripos($name, "pigeon")) return 'defaultBirds/piccione.jpg';
+        if(stripos($name, "dove")) return 'defaultBirds/tortora.jpg';
         return 'defaultBirds/defaultBird.jpg';
     }
 
@@ -25,7 +25,11 @@ class BirdsController extends Controller
         $bird = new Birds;
         $bird->name = $req->input('name');
         $bird->sightingDate = $req->input('sightingDate');
-        $bird->personalNotes= $req->input('personalNotes');
+        if($req->input('personalNotes')){
+            $bird->personalNotes = $req->input('personalNotes');
+        }else{
+            $bird->personalNotes = '';
+        }
         $bird->xPosition = $req->input('xPosition');
         $bird->yPosition = $req->input('yPosition');
         if($req->file('photo') == null){
@@ -37,6 +41,17 @@ class BirdsController extends Controller
         $bird->deleted = 0;
         $bird->save();
         return $bird;
+    }
+
+    function editBird(Request $req){ //la proprietà dell'immagine deve chiamarsi photo
+        Birds::where('id', $req->input('id'))->update([
+            'name' => $req->input('name'),
+            'sightingDate' => $req->input('sightingDate'),
+            'personalNotes' => $req->input('personalNotes'),
+            'xPosition' => $req->input('xPosition'),
+            'yPosition' => $req->input('yPosition'),
+            'photoPath' => $req->file('photo')->store("birds/"),
+        ]);
     }
 
     function getAllBirds($requestingUser) {
