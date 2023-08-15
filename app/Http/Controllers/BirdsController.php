@@ -126,7 +126,7 @@ class BirdsController extends Controller
             $maximumDistance = 9999999;
         }
         $requestingUser = $req->input('requestingUser');
-        $maximumDays = Carbon::now()->subDays($maximumDays - 1)->format('Y-d-m');
+        $maximumDays = Carbon::now()->subDays($maximumDays)->format('Y-m-d');
         $latUser = $req->input('latUser');
         $lonUser = $req->input('lonUser');
         return DB::select("
@@ -140,7 +140,7 @@ class BirdsController extends Controller
             GROUP BY
                 b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name
             HAVING
-                distance < ".$maximumDistance." AND b.sightingDate >= '".$maximumDays."' AND b.deleted = 0 AND b.user <> '".$requestingUser."'
+                distance < ".$maximumDistance." AND b.sightingDate >= '".$maximumDays."' AND b.sightingDate <= '".Carbon::now()->format('Y-m-d')."' AND b.deleted = 0 AND b.user <> '".$requestingUser."'
             ORDER BY
                 b.sightingDate DESC;
         ");
