@@ -77,4 +77,8 @@ class UsersController extends Controller
             ]),
         ]);
     }
+
+    function searchUserByUsername($username){
+        return Users::where('username', 'like', '%'.$username.'%')->get();
+    }
 }
