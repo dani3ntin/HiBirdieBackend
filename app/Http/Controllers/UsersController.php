@@ -73,6 +73,8 @@ class UsersController extends Controller
                 'latestSight' => $latestSightByThisUser,
                 'likes' => $user->likes,
                 'followers' => $user->followers,
+                'xPosition' => $user->xPosition,
+                'yPosition' => $user->yPosition,
                 'isLoggedUserFollowing' => $isUsernameFollowing,
             ]),
         ]);
@@ -80,5 +82,35 @@ class UsersController extends Controller
 
     function searchUserByUsername($username){
         return Users::where('username', 'like', '%'.$username.'%')->get();
+    }
+
+    function editUser(Request $req){
+        if($req->file('photo') == null){
+            Users::where('username', $req->input('username'))->update([
+                'name' => $req->input('name'),
+                'state' => $req->input('state'),
+                'xPosition' => $req->input('xPosition'),
+                'yPosition' => $req->input('yPosition'),
+            ]);
+        }else{
+            Users::where('username', $req->input('username'))->update([
+                'name' => $req->input('name'),
+                'state' => $req->input('state'),
+                'profilePic' => $req->file('photo')->store("personPic/"),
+                'xPosition' => $req->input('xPosition'),
+                'yPosition' => $req->input('yPosition'),
+            ]);
+        }
+        return Users::where('username', $req->input('username'))->get();
+    }
+
+    function changePassword(Request $req){
+        $result = Users::where('username', $req->username)
+            ->update([
+                'password' => Hash::make($req->input('password'))
+            ]);
+        if($result) 
+            return true;
+        return false;
     }
 }
