@@ -170,7 +170,7 @@ class BirdsController extends Controller
                 6371 * ACOS(COS(RADIANS(".$latUser.")) * COS(RADIANS(b.xPosition)) * COS(RADIANS(".$lonUser.") - RADIANS(b.yPosition)) + SIN(RADIANS(".$latUser.")) * SIN(RADIANS(b.xPosition))) AS distance
             FROM Birds AS b
             LEFT JOIN likes AS l ON b.id = l.bird
-            WHERE b.user = '".$authorUsername."'
+            WHERE b.user = '".$authorUsername."' AND b.deleted = '0'
             GROUP BY
                 b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name
             ORDER BY

@@ -15,13 +15,25 @@ class UsersController extends Controller
 {
     function register(Request $req){
         $users = new Users;
-        $users->id = $req->input('id');
+        $users->username = $req->input('username');
         $users->name = $req->input('name');
         $users->email = $req->input('email');
         $users->password = $req->input('password');
+        $users->xPosition = $req->input('xPosition');
+        $users->yPosition = $req->input('yPosition');
+        $users->likes = 0;
+        $users->followers = 0;
         //$users->password = Hash::make($req->input('password'));
-        $user->profilePic = $req->file('photo')->store("personPic/");
-        $users->state = $req->input('state');
+        if($req->file('photo') == null){
+            $users->profilePic = 'personPic/default.png';
+        }else{
+            $users->profilePic = $req->file('photo')->store("personPic/");
+        }
+        if($req->input('state') == null){
+            $users->state = '';
+        }else{
+            $users->state = $req->input('state');
+        }
         $users->save();
         return $users;
     }
