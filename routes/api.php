@@ -28,6 +28,7 @@ Route::get('getuserbyusername/{loggedUsername}/{requestedUsername}', [UsersContr
 Route::get('searchuserbyusername/{username}', [UsersController::class, 'searchUserByUsername']);
 Route::post('edituser', [UsersController::class, 'editUser']);
 Route::post('changepassword', [UsersController::class, 'changePassword']);
+Route::get('isusernamealreadyused/{username}/', [UsersController::class, 'isUsernameAlreadyUsed']);
 Route::post('addbird', [BirdsController::class, 'addBird']);
 Route::post('editbird', [BirdsController::class, 'editBird']);
 Route::get('getbird/{id}/{requestingUser}',[BirdsController::class,'getBird']);

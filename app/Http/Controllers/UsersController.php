@@ -55,6 +55,12 @@ class UsersController extends Controller
         return $userFoundWithEmail;
     }
 
+    function isUsernameAlreadyUsed($username){
+        $user = Users::select("*")->where("username", $username)->get();
+        if(count($user) > 0) return ["response" => 1];
+        return ["response" => 0];
+    }
+
     function getUserByUsername($loggedUsername, $requestedUsername){
         $user = Users::select("*")->where("username", $requestedUsername)->get()[0];
         $path = $user->profilePic;
