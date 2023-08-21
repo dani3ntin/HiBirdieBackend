@@ -81,7 +81,7 @@ class BirdsController extends Controller
     }
 
     function getAllBirdsExceptYours($requestingUser) {
-        return Birds::leftJoin('likes', 'birds.id', '=', 'likes.bird')
+        $birds = Birds::leftJoin('likes', 'birds.id', '=', 'likes.bird')
             ->select(
                 'birds.id', 'birds.sightingDate', 'birds.personalNotes', 'birds.xPosition', 'birds.yPosition', 'birds.photoPath', 'birds.user', 'birds.deleted', 'birds.name', 
                 DB::raw('COUNT(likes.bird) AS likes'),
@@ -94,6 +94,8 @@ class BirdsController extends Controller
             )
             ->setBindings([$requestingUser, $requestingUser, $requestingUser])
             ->get();
+        if(!$birds) return [];
+        return $birds;
     }
 
     // maximumDays, maximumDistance, requestingUser, latUser, longUser
@@ -110,7 +112,7 @@ class BirdsController extends Controller
         $maximumDays = Carbon::now()->subDays($maximumDays - 1)->format('Y-d-m');
         $latUser = $req->input('latUser');
         $lonUser = $req->input('lonUser');
-        return DB::select("
+        $birds = DB::select("
             SELECT
                 b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name,
                 COUNT(l.bird) AS likes,
@@ -125,6 +127,8 @@ class BirdsController extends Controller
             ORDER BY
                 b.sightingDate DESC;
         ");
+        if(!$birds) return [];
+        return $birds;
     }
 
     function getBirdsWithFilterExceptYours(Request $req) {
@@ -140,7 +144,7 @@ class BirdsController extends Controller
         $maximumDays = Carbon::now()->subDays($maximumDays)->format('Y-m-d');
         $latUser = $req->input('latUser');
         $lonUser = $req->input('lonUser');
-        return DB::select("
+        $birds =  DB::select("
             SELECT
                 b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name,
                 COUNT(l.bird) AS likes,
@@ -155,6 +159,8 @@ class BirdsController extends Controller
             ORDER BY
                 b.sightingDate DESC;
         ");
+        if(!$birds) return [];
+        return $birds;
     }
 
     function getBirdsByUsernameWithDistance(Request $req) {
@@ -162,7 +168,7 @@ class BirdsController extends Controller
         $authorUsername = $req->input('authorUsername');
         $latUser = $req->input('latUser');
         $lonUser = $req->input('lonUser');
-        return DB::select("
+        $birds = DB::select("
             SELECT
                 b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name,
                 COUNT(l.bird) AS likes,
@@ -176,11 +182,13 @@ class BirdsController extends Controller
             ORDER BY
                 b.sightingDate DESC;
         ");
+        if(!$birds) return [];
+        return $birds;
     }
 
     
     function getBirdsByUser($user, $requestingUser) {
-        return Birds::leftJoin('likes', 'birds.id', '=', 'likes.bird')
+        $birds = Birds::leftJoin('likes', 'birds.id', '=', 'likes.bird')
             ->select(
                 'birds.id', 'birds.sightingDate', 'birds.personalNotes', 'birds.xPosition', 'birds.yPosition', 'birds.photoPath', 'birds.user', 'birds.deleted', 'birds.name', 
                 DB::raw('COUNT(likes.bird) AS likes'),
@@ -193,6 +201,8 @@ class BirdsController extends Controller
             )
             ->setBindings([$requestingUser, $user, $user])
             ->get();
+        if(!$birds) return [];
+        return $birds;
     }
 
     function getBird($id, $requestingUser){
