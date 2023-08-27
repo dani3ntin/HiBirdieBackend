@@ -98,8 +98,8 @@ class UsersController extends Controller
         ]);
     }
 
-    function searchUserByUsername($username){
-        return Users::where('username', 'like', '%'.$username.'%')->get();
+    function searchUserByUsername($username, $requestingUsername){
+        return Users::where('username', 'like', '%'.$username.'%')->where('username', '<>', $requestingUsername)->get();
     }
 
     function editUser(Request $req){
