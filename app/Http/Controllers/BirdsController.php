@@ -13,11 +13,11 @@ use Carbon\Carbon;
 class BirdsController extends Controller
 {
     function findDefaultBirdPic($name){
-        if(stripos($name, "crow")) return 'defaultBirds/cornacchia.jpg';
-        if(stripos($name, "sparrow")) return 'defaultBirds/passero.jpg';
-        if(stripos($name, "robin")) return 'defaultBirds/pettirosso.jpg';
-        if(stripos($name, "pigeon")) return 'defaultBirds/piccione.jpg';
-        if(stripos($name, "dove")) return 'defaultBirds/tortora.jpg';
+        if(stripos($name, "crow") != null) return 'defaultBirds/cornacchia.jpg';
+        if(stripos($name, "sparrow") != null) return 'defaultBirds/passero.jpg';
+        if(stripos($name, "robin") != null) return 'defaultBirds/pettirosso.jpg';
+        if(stripos($name, "pigeon") != null) return 'defaultBirds/piccione.jpg';
+        if(stripos($name, "dove") != null) return 'defaultBirds/tortora.jpg';
         return 'defaultBirds/defaultBird.jpg';
     }
 
