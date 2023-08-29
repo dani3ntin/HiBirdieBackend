@@ -52,9 +52,8 @@ class FollowersController extends Controller
         ->where('followers.usernameFollowed', '=', $username)
         ->get();
 
-        $followersController = new FollowersController;
         foreach ($results as $result) {
-            $isUsernameFollowing = $followersController->isUsernameFollowing($requestingUsername, $result->usernameFollowed);
+            $isUsernameFollowing = $this->isUsernameFollowing($requestingUsername, $result->usernameFollower);
             $result->isLoggedUserFollowing = $isUsernameFollowing;
         }
 
