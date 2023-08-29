@@ -46,11 +46,19 @@ class FollowersController extends Controller
         return $follower;
     }
 
-    function getFollowersByUsername($username){
-        return Followers::leftJoin('users', 'followers.usernameFollower', '=', 'users.username')
+    function getFollowersByUsername($username, $requestingUsername){
+        $results = Followers::leftJoin('users', 'followers.usernameFollower', '=', 'users.username')
         ->select('*')
         ->where('followers.usernameFollowed', '=', $username)
         ->get();
+
+        $followersController = new FollowersController;
+        foreach ($results as $result) {
+            $isUsernameFollowing = $followersController->isUsernameFollowing($requestingUsername, $result->usernameFollowed);
+            $result->isLoggedUserFollowing = $isUsernameFollowing;
+        }
+
+        return $results;
     }
 
     function getFollowedByUsername($username){
