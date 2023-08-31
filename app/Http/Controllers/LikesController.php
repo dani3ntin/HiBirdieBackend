@@ -63,7 +63,7 @@ class LikesController extends Controller
     }
 
     function getLikesByUsername($username, $requestingUsername){
-        return Likes::selectRaw("likes.user, users.name,  users.state, users.likes, users.followers, count(*) AS nLikes")
+        $results = Likes::selectRaw("likes.user, users.name,  users.state, users.likes, users.followers, count(*) AS nLikes")
             ->join("birds", function($join){
                 $join->on("likes.bird", "=", "birds.id");
             })
