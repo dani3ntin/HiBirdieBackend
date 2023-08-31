@@ -42,6 +42,7 @@ Route::get('deletebird/{id}',[BirdsController::class,'deleteBird']);
 Route::post('addlike',[LikesController::class,'addLike']);
 Route::post('removelike',[LikesController::class,'removeLike']);
 Route::post('userputlike',[LikesController::class,'userPutLike']);
+Route::get('getlikesbyusername/{username}/{requestingUsername}',[LikesController::class,'getLikesByUsername']);
 Route::post('addfollower', [FollowersController::class, 'addFollower']);
 Route::post('removefollower', [FollowersController::class, 'removeFollower']);
 Route::get('getfollowersbyusername/{username}/{requestingUsername}', [FollowersController::class, 'getFollowersByUsername']);

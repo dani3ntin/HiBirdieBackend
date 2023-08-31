@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Likes;
 use App\Models\Users;
 use App\Models\Birds;
+use Illuminate\Support\Facades\DB;
 
 class LikesController extends Controller
 {
@@ -59,5 +60,28 @@ class LikesController extends Controller
             return false;
         }
         return true;
+    }
+
+    function getLikesByUsername($username, $requestingUsername){
+        return Likes::selectRaw("likes.user, users.name,  users.state, users.likes, users.followers, count(*) AS nLikes")
+            ->join("birds", function($join){
+                $join->on("likes.bird", "=", "birds.id");
+            })
+            ->leftJoin("users", function($join){
+                $join->on("likes.user", "=", "users.username");
+            })
+            ->where("birds.deleted", "=", 0)
+            ->where("birds.user", "=", $username)
+            ->orderBy("nLikes","desc")
+            ->groupBy("likes.user", "users.name", "users.state", "users.likes", "users.followers")
+            ->get();
+
+        $followersController = new FollowersController;
+        foreach ($results as $result) {
+            $isUsernameFollowing = $followersController->isUsernameFollowing($requestingUsername, $result->user);
+            $result->isLoggedUserFollowing = $isUsernameFollowing;
+        }
+
+        return $results;
     }
 }
