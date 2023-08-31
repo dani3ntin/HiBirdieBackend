@@ -39,7 +39,7 @@ class UsersController extends Controller
     }
 
     function checkLogin($user, $password){
-        if(!$user || $password != $user->password)
+        if(!$user || !Hash::check($password, $user->password))
             return false;
         return true;
     }
@@ -47,8 +47,7 @@ class UsersController extends Controller
     function login(Request $req){
         $userFoundWithId = Users::where("username", $req->input)->first();
         $userFoundWithEmail = Users::where("email", $req->input)->first();
-        if(!$utente || !Hash::check($req->password, $utente->password)) //questo è quello giusto per fare il login, fa l'hash delle password
-        //if(!$this->checkLogin($userFoundWithId, $req->password) && !$this->checkLogin($userFoundWithEmail, $req->password))
+        if(!$this->checkLogin($userFoundWithId, $req->password) && !$this->checkLogin($userFoundWithEmail, $req->password))
             return ["error"=>"wrong username or password"];
         if($userFoundWithId) 
             return $userFoundWithId;
