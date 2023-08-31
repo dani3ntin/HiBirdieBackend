@@ -18,12 +18,12 @@ class UsersController extends Controller
         $users->username = $req->input('username');
         $users->name = $req->input('name');
         $users->email = $req->input('email');
-        $users->password = $req->input('password');
+        //$users->password = $req->input('password');
         $users->xPosition = $req->input('xPosition');
         $users->yPosition = $req->input('yPosition');
         $users->likes = 0;
         $users->followers = 0;
-        //$users->password = Hash::make($req->input('password'));
+        $users->password = Hash::make($req->input('password'));
         if($req->file('photo') == null){
             $users->profilePic = 'personPic/default.png';
         }else{
@@ -47,8 +47,8 @@ class UsersController extends Controller
     function login(Request $req){
         $userFoundWithId = Users::where("username", $req->input)->first();
         $userFoundWithEmail = Users::where("email", $req->input)->first();
-        //if(!$utente || !Hash::check($req->password, $utente->password)){  //questo è quello giusto per fare il login, fa l'hash delle password
-        if(!$this->checkLogin($userFoundWithId, $req->password) && !$this->checkLogin($userFoundWithEmail, $req->password))
+        if(!$utente || !Hash::check($req->password, $utente->password)) //questo è quello giusto per fare il login, fa l'hash delle password
+        //if(!$this->checkLogin($userFoundWithId, $req->password) && !$this->checkLogin($userFoundWithEmail, $req->password))
             return ["error"=>"wrong username or password"];
         if($userFoundWithId) 
             return $userFoundWithId;
