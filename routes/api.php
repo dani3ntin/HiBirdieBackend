@@ -32,6 +32,7 @@ Route::get('isusernamealreadyused/{username}/', [UsersController::class, 'isUser
 Route::post('addbird', [BirdsController::class, 'addBird']);
 Route::post('editbird', [BirdsController::class, 'editBird']);
 Route::get('getbird/{id}/{requestingUser}',[BirdsController::class,'getBird']);
+Route::get('getbirdicon/{id}',[BirdsController::class,'getBirdIcon']);
 Route::get('getallbirds/{requestingUser}',[BirdsController::class,'getAllBirds']);
 Route::get('getallbirdsexceptyours/{requestingUser}',[BirdsController::class,'getAllBirdsExceptYours']);
 Route::get('getbirdsbyuser/{user}/{requestingUser}',[BirdsController::class,'getBirdsByUser']);

@@ -12,6 +12,23 @@ use Carbon\Carbon;
 
 class BirdsController extends Controller
 {
+    function compressImage($imagePath){
+        if (!extension_loaded('gd')){
+            return $imagePath;
+        }
+        $originalImage = imagecreatefromjpeg($imagePath);
+        $quality = 15;
+        $compressedImagePath = 'immagine_compressa.jpg';
+        imagejpeg($originalImage, $compressedImagePath, $quality);
+        imagedestroy($originalImage);
+        return $compressedImagePath;
+    }
+
+    function getValidBirdId(){
+        $latestRecord = Birds::max('id');
+        return $latestRecord + 1;
+    }
+
     function findDefaultBirdPic($name){
         if(stripos($name, "crow") !== false) return 'defaultBirds/cornacchia.jpg';
         if(stripos($name, "sparrow") !== false) return 'defaultBirds/passero.jpg';
@@ -34,8 +51,13 @@ class BirdsController extends Controller
         $bird->yPosition = $req->input('yPosition');
         if($req->file('photo') == null){
             $bird->photoPath = $this->findDefaultBirdPic($req->input('name'));
+            $bird->iconPath = $this->findDefaultBirdPic($req->input('name'));
         }else{
             $bird->photoPath = $req->file('photo')->store("birds/");
+            $compressedImagePath = $this->compressImage($req->file('photo')->path());
+            $iconPath = "birdsIcons/".$this->getValidBirdId().".jpeg";
+            Storage::put($iconPath, file_get_contents($compressedImagePath));
+            $bird->iconPath = $iconPath;
         }
         $bird->user = $req->input('user');
         $bird->deleted = 0;
@@ -54,6 +76,10 @@ class BirdsController extends Controller
             ]);
         }
         else{
+            $compressedImagePath = $this->compressImage($req->file('photo')->path());
+            $iconPath = "birdsIcons/".$this->getValidBirdId().".jpeg";
+            Storage::put($iconPath, file_get_contents($compressedImagePath));
+
             Birds::where('id', $req->input('id'))->update([
                 'name' => $req->input('name'),
                 'sightingDate' => $req->input('sightingDate'),
@@ -61,6 +87,7 @@ class BirdsController extends Controller
                 'xPosition' => $req->input('xPosition'),
                 'yPosition' => $req->input('yPosition'),
                 'photoPath' => $req->file('photo')->store("birds/"),
+                'iconPath' => $iconPath,
             ]);
         }
     }
@@ -203,6 +230,17 @@ class BirdsController extends Controller
             ->get();
         if(!$birds) return [];
         return $birds;
+    }
+
+    function getBirdIcon($id){
+        $bird = Birds::select("*")->where("id", $id)->where("deleted", "=", "0")->get()[0];
+        $path = $bird->iconPath;
+        $image = Storage::get($path);
+        $mimeType = Storage::mimeType($path);
+        return new Response($image, 200, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline',
+        ]);
     }
 
     function getBird($id, $requestingUser){
