@@ -24,9 +24,18 @@ class BirdsController extends Controller
         return $compressedImagePath;
     }
 
-    function getValidBirdId(){
-        $latestRecord = Birds::max('id');
-        return $latestRecord + 1;
+    function getValidIconBirdName(){
+        $files = Storage::files('birdsIcons');
+        $fileNames = [];
+
+        foreach ($files as $file) {
+            $fileName = pathinfo($file, PATHINFO_FILENAME);
+            $fileNames[] = $fileName;
+        }
+        if($fileNames == [])
+            return 0;
+        $maxValue = max($fileNames);
+        return $maxValue + 1;
     }
 
     function findDefaultBirdPic($name){
@@ -55,7 +64,7 @@ class BirdsController extends Controller
         }else{
             $bird->photoPath = $req->file('photo')->store("birds/");
             $compressedImagePath = $this->compressImage($req->file('photo')->path());
-            $iconPath = "birdsIcons/".$this->getValidBirdId().".jpeg";
+            $iconPath = "birdsIcons/".$this->getValidIconBirdName().".jpeg";
             Storage::put($iconPath, file_get_contents($compressedImagePath));
             $bird->iconPath = $iconPath;
         }
@@ -77,7 +86,7 @@ class BirdsController extends Controller
         }
         else{
             $compressedImagePath = $this->compressImage($req->file('photo')->path());
-            $iconPath = "birdsIcons/".$this->getValidBirdId().".jpeg";
+            $iconPath = "birdsIcons/".$this->getValidIconBirdName().".jpeg";
             Storage::put($iconPath, file_get_contents($compressedImagePath));
 
             Birds::where('id', $req->input('id'))->update([
