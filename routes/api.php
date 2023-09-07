@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('register', [UsersController::class, 'register']);
 Route::post('login', [UsersController::class, 'login']);
 Route::get('getuserbyusername/{loggedUsername}/{requestedUsername}', [UsersController::class, 'getUserByUsername']);
+Route::get('getusericonbyusername/{username}', [UsersController::class, 'getUserIconByUsername']);
 Route::get('searchuserbyusername/{username}/{requestingUsername}', [UsersController::class, 'searchUserByUsername']);
 Route::post('edituser', [UsersController::class, 'editUser']);
 Route::post('changepassword', [UsersController::class, 'changePassword']);

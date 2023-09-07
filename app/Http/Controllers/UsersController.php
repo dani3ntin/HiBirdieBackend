@@ -13,6 +13,32 @@ use App\Http\Controllers\FollowersController;
 
 class UsersController extends Controller
 {
+    function getValidpersonIconPicName(){
+        $files = Storage::files('personIconPic');
+        $fileNames = [];
+
+        foreach ($files as $file) {
+            $fileName = pathinfo($file, PATHINFO_FILENAME);
+            $fileNames[] = $fileName;
+        }
+        if($fileNames == [])
+            return 0;
+        $maxValue = max($fileNames);
+        return $maxValue + 1;
+    }
+
+    function compressImage($imagePath){
+        if (!extension_loaded('gd')){
+            return $imagePath;
+        }
+        $originalImage = imagecreatefromjpeg($imagePath);
+        $quality = 15;
+        $compressedImagePath = 'immagine_compressa.jpg';
+        imagejpeg($originalImage, $compressedImagePath, $quality);
+        imagedestroy($originalImage);
+        return $compressedImagePath;
+    }
+
     function register(Request $req){
         $users = new Users;
         $users->username = $req->input('username');
@@ -58,6 +84,19 @@ class UsersController extends Controller
         $user = Users::select("*")->where("username", $username)->get();
         if(count($user) > 0) return ["response" => 1];
         return ["response" => 0];
+    }
+
+    function getUserIconByUsername($username){
+        $user = Users::select("*")->where("username", $username)->get()[0];
+        $path = $user->iconPic;
+        if($path == null) 
+            return null;
+        $image = Storage::get($path);
+        $mimeType = Storage::mimeType($path);
+        return new Response($image, 200, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline',
+        ]);
     }
 
     function getUserByUsername($loggedUsername, $requestedUsername){
@@ -120,10 +159,14 @@ class UsersController extends Controller
                 'yPosition' => $req->input('yPosition'),
             ]);
         }else{
+            $compressedImagePath = $this->compressImage($req->file('photo')->path());
+            $iconPath = "personIconPic/".$this->getValidpersonIconPicName().".jpeg";
+            Storage::put($iconPath, file_get_contents($compressedImagePath));
             Users::where('username', $req->input('username'))->update([
                 'name' => $req->input('name'),
                 'state' => $req->input('state'),
                 'profilePic' => $req->file('photo')->store("personPic/"),
+                'iconPic' => $iconPath,
                 'xPosition' => $req->input('xPosition'),
                 'yPosition' => $req->input('yPosition'),
             ]);
