@@ -50,11 +50,8 @@ class UsersController extends Controller
         $users->likes = 0;
         $users->followers = 0;
         $users->password = Hash::make($req->input('password'));
-        if($req->file('photo') == null){
-            $users->profilePic = 'personPic/default.png';
-        }else{
-            $users->profilePic = $req->file('photo')->store("personPic/");
-        }
+        $users->profilePic = 'personPic/default.png';
+        $users->iconPic = 'personPic/default.png';
         if($req->input('state') == null){
             $users->state = '';
         }else{
