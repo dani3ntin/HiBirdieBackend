@@ -21,7 +21,7 @@ class CommentsController extends Controller
         return Comments::select('id', 'bird', 'user', 'commentText', 'date', 'name')
             ->join('users', 'comments.user', '=', 'users.username')
             ->where('comments.bird', '=', $bird)
-            ->orderBy('comments.date', 'desc')
+            ->orderBy('comments.date', 'asc')
             ->get();
     }
 }
