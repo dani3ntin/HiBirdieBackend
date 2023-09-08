@@ -6,6 +6,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\BirdsController;
 use App\Http\Controllers\LikesController;
 use App\Http\Controllers\FollowersController;
+use App\Http\Controllers\CommentsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,3 +51,5 @@ Route::post('removefollower', [FollowersController::class, 'removeFollower']);
 Route::get('getfollowersbyusername/{username}/{requestingUsername}', [FollowersController::class, 'getFollowersByUsername']);
 Route::get('getfollowedbyusername/{username}', [FollowersController::class, 'getFollowedByUsername']);
 Route::get('isusernamefollowing/{follower}/{followed}', [FollowersController::class, 'isUsernameFollowing']);
+Route::post('addcomment', [CommentsController::class, 'addComment']);
+Route::get('getcommentsbybird/{bird}', [CommentsController::class, 'getCommentsByBird']);
