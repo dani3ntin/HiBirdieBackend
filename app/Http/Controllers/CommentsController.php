@@ -18,6 +18,10 @@ class CommentsController extends Controller
     }
 
     function getCommentsByBird($bird){
-        return Comments::where('bird', '=', $bird)->get();
+        return Comments::select('id', 'bird', 'user', 'commentText', 'date', 'name')
+            ->join('users', 'comments.user', '=', 'users.username')
+            ->where('comments.bird', '=', $bird)
+            ->orderBy('comments.date', 'desc')
+            ->get();
     }
 }
