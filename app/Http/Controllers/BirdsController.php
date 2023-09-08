@@ -138,6 +138,8 @@ class BirdsController extends Controller
     function getBirdsWithFilter(Request $req) {
         $maximumDays = $req->input('maximumDays');
         $maximumDistance = $req->input('maximumDistance');
+        $sorting = $req->input('sorting');
+        $sortingCriterion = $req->input('sortingCriterion');
         if($maximumDays == 0){
             $maximumDays = 9999999;
         }
@@ -148,7 +150,7 @@ class BirdsController extends Controller
         $maximumDays = Carbon::now()->subDays($maximumDays - 1)->format('Y-d-m');
         $latUser = $req->input('latUser');
         $lonUser = $req->input('lonUser');
-        $birds = DB::select("
+        $query = "
             SELECT
                 b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name,
                 COUNT(l.bird) AS likes,
@@ -160,9 +162,14 @@ class BirdsController extends Controller
                 b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name
             HAVING
                 distance < ".$maximumDistance." AND b.sightingDate >= '".$maximumDays."' AND b.deleted = 0
-            ORDER BY
-                b.sightingDate DESC;
-        ");
+        ";
+        if($sorting == "sightingDate") $query .= "ORDER BY b.sightingDate ";
+        if($sorting == "distance") $query .= "ORDER BY distance ";
+        if($sorting == "likes") $query .= "ORDER BY likes ";
+
+        return $query .= $sortingCriterion;
+
+        $birds = DB::select($query);
         if(!$birds) return [];
         return $birds;
     }
@@ -170,6 +177,8 @@ class BirdsController extends Controller
     function getBirdsWithFilterExceptYours(Request $req) {
         $maximumDays = $req->input('maximumDays');
         $maximumDistance = $req->input('maximumDistance');
+        $sorting = $req->input('sorting');
+        $sortingCriterion = $req->input('sortingCriterion');
         if($maximumDays == 0){
             $maximumDays = 99999;
         }
@@ -180,7 +189,7 @@ class BirdsController extends Controller
         $maximumDays = Carbon::now()->subDays($maximumDays)->format('Y-m-d');
         $latUser = $req->input('latUser');
         $lonUser = $req->input('lonUser');
-        $birds =  DB::select("
+        $query = "
             SELECT
                 b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name,
                 COUNT(l.bird) AS likes,
@@ -192,9 +201,14 @@ class BirdsController extends Controller
                 b.id, b.sightingDate, b.personalNotes, b.xPosition, b.yPosition, b.photoPath, b.user, b.deleted, b.name
             HAVING
                 distance < ".$maximumDistance." AND b.sightingDate >= '".$maximumDays."' AND b.sightingDate <= '".Carbon::now()->format('Y-m-d')."' AND b.deleted = 0 AND b.user <> '".$requestingUser."'
-            ORDER BY
-                b.sightingDate DESC;
-        ");
+        ";
+        if($sorting == "sightingDate") $query .= "ORDER BY b.sightingDate ";
+        if($sorting == "distance") $query .= "ORDER BY distance ";
+        if($sorting == "likes") $query .= "ORDER BY likes ";
+
+        $query .= $sortingCriterion;
+
+        $birds = DB::select($query);
         if(!$birds) return [];
         return $birds;
     }
