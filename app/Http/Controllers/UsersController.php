@@ -83,6 +83,12 @@ class UsersController extends Controller
         return ["response" => 0];
     }
 
+    function isEmailAlreadyUsed($email){
+        $user = Users::select("*")->where("email", $email)->get();
+        if(count($user) > 0) return ["response" => 1];
+        return ["response" => 0];
+    }
+
     function getUserIconByUsername($username){
         $user = Users::select("*")->where("username", $username)->get()[0];
         $path = $user->iconPic;
