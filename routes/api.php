@@ -53,4 +53,4 @@ Route::get('getfollowersbyusername/{username}/{requestingUsername}', [FollowersC
 Route::get('getfollowedbyusername/{username}', [FollowersController::class, 'getFollowedByUsername']);
 Route::get('isusernamefollowing/{follower}/{followed}', [FollowersController::class, 'isUsernameFollowing']);
 Route::post('addcomment', [CommentsController::class, 'addComment']);
-Route::get('getcommentsbybird/{bird}', [CommentsController::class, 'getCommentsByBird']);
+Route::get('getcommentsbybird/{bird}/{requestingUsername}', [CommentsController::class, 'getCommentsByBird']);
